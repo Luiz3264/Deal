@@ -8,17 +8,10 @@ Use `vite` or `npm run dev` in the root directory after installing the dependenc
 
 Edit `src/data.csv` to modify the products list. First the bar code, then the name and finally the price.
 
-## Sample codes
+## Try it
+
+You can try it here: https://luiz3264.github.io/Deal/
 
 These are some sample codes included in the `data.csv` file for testing:
 
-- 123
-- 321
-- 456
-- 654
-- 111
-- 222
-- 333
-- 444
-- 555
-- 666
+123, 321, 456, 654, 111, 222, 333, 444, 555, 666
