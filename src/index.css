@@ -1,0 +1,17 @@
+@import "tailwindcss";
+body {
+  font-family: sans-serif;
+  user-select: none;
+}
+button {
+  cursor: pointer;
+}
+
+input {
+  outline: none;
+}
+
+::selection {
+  color: var(--bg);
+  background-color: var(--fg);
+}
