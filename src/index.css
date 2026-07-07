@@ -10,8 +10,3 @@ button {
 input {
   outline: none;
 }
-
-::selection {
-  color: var(--bg);
-  background-color: var(--fg);
-}

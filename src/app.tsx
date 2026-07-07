@@ -66,7 +66,7 @@ function Item({
   );
 }
 
-function App() {
+export default function App() {
   const barRef = useRef<HTMLInputElement>(null);
   const [price, setPrice] = useState(0);
   const [itemlist, setItemlist] = useState<CartItem[]>([]);
@@ -74,7 +74,12 @@ function App() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setTime(new Date().toLocaleTimeString());
+      setTime(
+        new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      );
     }, 1000);
 
     return () => clearInterval(interval);
@@ -138,7 +143,7 @@ function App() {
 
   return (
     <div className="bg-[#777777] grid place-items-center h-screen w-screen">
-      <div className="bg-white w-l border-4 text-2xl">
+      <div className="bg-white border-4 text-2xl">
         <div className="flex justify-between bg-black text-white text-5xl">
           <span>Deal</span>
           {time}
@@ -157,20 +162,29 @@ function App() {
             clear
           </button>
         </div>
-        <form onSubmit={handleSubmit}>
-          <input
-            size={20}
-            placeholder="Barcode here"
-            className="pl-2 pr-2"
-            ref={barRef}
-          />
-          <button type="submit" className="bg-black text-white pl-4 pr-4 p-1">
-            ok
+        <div>
+          <form onSubmit={handleSubmit} className="flex justify-between">
+            <input
+              size={20}
+              placeholder="Barcode here"
+              className="pl-2 pr-2"
+              ref={barRef}
+            />
+            <button type="submit" className="bg-black text-white pl-4 pr-4 p-1">
+              ok
+            </button>
+          </form>
+          <hr className="border-b-4" />
+          <button
+            className="bg-black text-white pl-1 pr-2"
+            onClick={() => {
+              window.location.href = "/Deal/config.html";
+            }}
+          >
+            config
           </button>
-        </form>
+        </div>
       </div>
     </div>
   );
 }
-
-export default App;
