@@ -1,5 +1,6 @@
+"use client";
 import { useRef, useState, useEffect, useMemo } from "react";
-import text from "./data.csv?raw";
+import text from "./data.csv";
 
 type Product = {
   bar: string;
@@ -73,7 +74,7 @@ export default function App() {
   const [time, setTime] = useState("Welcome!");
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    setInterval(() => {
       setTime(
         new Date().toLocaleTimeString([], {
           hour: "2-digit",
@@ -81,8 +82,6 @@ export default function App() {
         }),
       );
     }, 1000);
-
-    return () => clearInterval(interval);
   }, []);
 
   const products = useMemo(() => parseCSV(text), []);
@@ -143,7 +142,7 @@ export default function App() {
 
   return (
     <div className="bg-[#777777] grid place-items-center h-screen w-screen">
-      <div className="bg-white border-4 text-2xl">
+      <div className="bg-white border-4 text-2xl w-lg">
         <div className="flex justify-between bg-black text-white text-5xl">
           <span>Deal</span>
           {time}
@@ -178,7 +177,7 @@ export default function App() {
           <button
             className="bg-black text-white pl-1 pr-2"
             onClick={() => {
-              window.location.href = "/Deal/config.html";
+              window.location.href = "/cfg";
             }}
           >
             config
