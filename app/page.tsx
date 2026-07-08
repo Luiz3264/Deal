@@ -141,13 +141,13 @@ export default function App() {
   };
 
   return (
-    <div className="bg-[#777777] grid place-items-center h-screen w-screen">
-      <div className="bg-white border-4 text-2xl w-lg">
+    <div className="grid place-items-center h-screen w-screen">
+      <div className="bg-white border-4 text-2xl w-160 h-120">
         <div className="flex justify-between bg-black text-white text-5xl">
           <span>Deal</span>
           {time}
         </div>
-        <div className="h-auto">
+        <div className="h-73 overflow-auto">
           {itemlist.map((item, index) => (
             <Item key={index} onRemove={() => removeItem(index)}>
               {item.name} {item.quantity > 1 && `(x${item.quantity})`}

@@ -1,6 +1,6 @@
 # Deal
 
-A simple POS made from scratch with React.js, Tailwind CSS, Vite and Typescript.
+A simple POS project made from scratch.
 
 ## Instructions
 
