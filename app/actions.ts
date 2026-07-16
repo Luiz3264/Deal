@@ -18,7 +18,7 @@ export async function getCount(): Promise<number> {
     const result = db.prepare("SELECT COUNT(*) AS count FROM cash").get() as {
       count: number;
     };
-    return result.count;
+    return result.count + 1;
   } finally {
     db.close();
   }
@@ -65,7 +65,7 @@ export async function saveData(value: number): Promise<number> {
       count: number;
     };
 
-    return result.count;
+    return result.count + 1;
   } finally {
     db.close();
   }
