@@ -32,7 +32,7 @@ export async function saveData(value: string): Promise<number> {
   const newContent = fileRaw === "" ? line : fileRaw + "\n" + line;
 
   await fs.writeFile(filePath, newContent, "utf8");
-  return count;
+  return count + 1;
 }
 
 export async function getSalesCount(): Promise<number> {

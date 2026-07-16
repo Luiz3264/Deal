@@ -58,12 +58,12 @@ export default function App() {
           minute: "2-digit",
         }),
       );
-      const count = await getSalesCount();
-      setNumber(count);
       setDate(new Date().toLocaleDateString([]));
     }
 
     async function init() {
+      const count = await getSalesCount();
+      setNumber(count);
       update();
       id = setInterval(update, 1000);
     }
