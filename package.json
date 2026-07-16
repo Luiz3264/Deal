@@ -10,9 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "bcrypt": "^6.0.0",
     "next": "16.2.10",
-    "papaparse": "^5.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
@@ -24,15 +22,13 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/bcrypt": "^6.0.0",
     "@types/jest": "^30.0.0",
-    "@types/node": "^20",
-    "@types/papaparse": "^5.5.2",
+    "@types/node": "^26.1.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
-    "raw-loader": "^4.0.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

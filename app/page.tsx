@@ -1,25 +1,9 @@
 "use client";
-import { useRef, useState, useEffect, useMemo } from "react";
-import Papa from "papaparse";
-import text from "./data.csv";
-import { getSalesCount, saveData } from "./actions";
+import { useRef, useState, useEffect } from "react";
+import { getCount, getProduct, saveData } from "./actions";
 
-type Product = { bar: string; name: string; value: number };
+type Product = { bar: string; ref: string; name: string; value: number };
 type CartItem = { id: string; name: string; price: number; quantity: number };
-
-function parseCSV(data: string): Product[] {
-  const result = Papa.parse<string[]>(data.trim(), {
-    skipEmptyLines: true,
-  });
-
-  return result.data
-    .map(([bar, name, price]: string[]) => ({
-      bar: bar?.trim(),
-      name: name?.trim(),
-      value: Math.round(parseFloat(price) * 100),
-    }))
-    .filter((p: Product) => p.bar && p.name && !isNaN(p.value));
-}
 
 function Item({
   children,
@@ -51,7 +35,7 @@ export default function App() {
   useEffect(() => {
     let id: ReturnType<typeof setInterval>;
 
-    async function update() {
+    function updatetime() {
       setTime(
         new Date().toLocaleTimeString([], {
           hour: "2-digit",
@@ -62,18 +46,15 @@ export default function App() {
     }
 
     async function init() {
-      const count = await getSalesCount();
+      const count = await getCount();
       setNumber(count);
-      update();
-      id = setInterval(update, 1000);
+      updatetime();
+      id = setInterval(updatetime, 1000);
     }
-
     init();
 
     return () => clearInterval(id);
   }, []);
-
-  const products = useMemo(() => parseCSV(text), []);
 
   const price = itemlist.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -106,7 +87,7 @@ export default function App() {
         ...list,
         {
           id: product.bar,
-          name: product.name,
+          name: product.name + " " + product.ref,
           price: product.value,
           quantity: 1,
         },
@@ -114,17 +95,18 @@ export default function App() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const barcode = barRef.current?.value;
     if (!barcode) return;
 
-    const product = products.find((p) => p.bar === barcode);
+    const product = await getProduct(barcode);
+    console.log(product);
     if (product) {
       addItem(product);
       barRef.current!.value = "";
     }
-  };
+  }
 
   function clear() {
     setItemlist([]);
@@ -133,7 +115,7 @@ export default function App() {
 
   function checkout() {
     if (itemlist.length === 0) return;
-    saveData((price / 100).toFixed(2)).then((newCount) => {
+    saveData(price / 100).then((newCount) => {
       setNumber(newCount);
     });
     clear();
@@ -173,12 +155,6 @@ export default function App() {
           </form>
           <hr className="border-b-4" />
           <div className="flex justify-between">
-            <button
-              className="bg-black text-white pl-1 pr-2"
-              onClick={() => (window.location.href = "/cfg")}
-            >
-              config
-            </button>
             {date}
             <button className="bg-black text-white pr-1 pl-2" onClick={clear}>
               clear
