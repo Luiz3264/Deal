@@ -8,7 +8,7 @@
    version="1.1"
    id="svg1"
    inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
-   sodipodi:docname="deal.svg"
+   sodipodi:docname="icon.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -24,7 +24,7 @@
      inkscape:deskcolor="#505050"
      inkscape:document-units="mm"
      inkscape:zoom="0.87039226"
-     inkscape:cx="95.933757"
+     inkscape:cx="96.508211"
      inkscape:cy="125.80535"
      inkscape:window-width="1920"
      inkscape:window-height="991"
@@ -49,13 +49,13 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:45.1556px;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none"
-       x="79.632767"
-       y="149.87614"
+       x="82.051628"
+       y="147.09114"
        id="text2"><tspan
          sodipodi:role="line"
-         id="tspan2"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:45.1556px;font-family:sans-serif;-inkscape-font-specification:sans-serif;stroke-width:1;stroke-dasharray:none"
-         x="79.632767"
-         y="149.87614">D</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:45.1556px;font-family:Monospace;-inkscape-font-specification:Monospace;stroke-width:1;stroke-dasharray:none"
+         x="82.051628"
+         y="147.09114"
+         id="tspan1">$</tspan></text>
   </g>
 </svg>

@@ -1,47 +1,24 @@
 "use client";
 import { useRef, useState, useEffect, useMemo } from "react";
+import Papa from "papaparse";
 import text from "./data.csv";
+import { getSalesCount, saveData } from "./actions";
 
-type Product = {
-  bar: string;
-  name: string;
-  value: number;
-};
-
-type CartItem = {
-  name: string;
-  price: number;
-  quantity: number;
-};
+type Product = { bar: string; name: string; value: number };
+type CartItem = { id: string; name: string; price: number; quantity: number };
 
 function parseCSV(data: string): Product[] {
-  const products: Product[] = [];
-  let current = "";
-  let col = 0;
-  let bar = "";
-  let name = "";
+  const result = Papa.parse<string[]>(data.trim(), {
+    skipEmptyLines: true,
+  });
 
-  for (let i = 0; i < data.length; i++) {
-    const char = data[i];
-
-    if (char === ",") {
-      if (col === 0) bar = current.trim();
-      if (col === 1) name = current.trim();
-      current = "";
-      col++;
-    } else if (char === "\n" || i === data.length - 1) {
-      const value = Math.round(parseFloat((current || char) + "") * 100);
-      if (bar && name) products.push({ bar, name, value });
-      current = "";
-      col = 0;
-      bar = "";
-      name = "";
-    } else {
-      current += char;
-    }
-  }
-
-  return products;
+  return result.data
+    .map(([bar, name, price]: string[]) => ({
+      bar: bar?.trim(),
+      name: name?.trim(),
+      value: Math.round(parseFloat(price) * 100),
+    }))
+    .filter((p: Product) => p.bar && p.name && !isNaN(p.value));
 }
 
 function Item({
@@ -54,11 +31,8 @@ function Item({
   return (
     <>
       <div className="flex justify-between">
-        <span className="text-xl-2 p-1">{children}</span>
-        <button
-          onClick={onRemove}
-          className="bg-black text-white p-2 pl-4 pr-4"
-        >
+        <span className="px-2">{children}</span>
+        <button onClick={onRemove} className="bg-black text-white px-4">
           cancel
         </button>
       </div>
@@ -69,119 +43,147 @@ function Item({
 
 export default function App() {
   const barRef = useRef<HTMLInputElement>(null);
-  const [price, setPrice] = useState(0);
   const [itemlist, setItemlist] = useState<CartItem[]>([]);
   const [time, setTime] = useState("Welcome!");
+  const [date, setDate] = useState("...");
+  const [number, setNumber] = useState(0);
 
   useEffect(() => {
-    setInterval(() => {
+    let id: ReturnType<typeof setInterval>;
+
+    async function update() {
       setTime(
         new Date().toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
         }),
       );
-    }, 1000);
+      const count = await getSalesCount();
+      setNumber(count);
+      setDate(new Date().toLocaleDateString([]));
+    }
+
+    async function init() {
+      update();
+      id = setInterval(update, 1000);
+    }
+
+    init();
+
+    return () => clearInterval(id);
   }, []);
 
   const products = useMemo(() => parseCSV(text), []);
 
-  const removeItem = (index: number) => {
-    const item = itemlist[index];
-    const newItemlist =
-      item.quantity > 1
-        ? itemlist.map((it, i) =>
-            i === index ? { ...it, quantity: it.quantity - 1 } : it,
-          )
-        : itemlist.filter((_, i) => i !== index);
+  const price = itemlist.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
 
-    setItemlist(newItemlist);
-    setPrice((p) => p - item.price);
+  const removeItem = (index: number) => {
+    setItemlist((list) => {
+      const item = list[index];
+      if (item.quantity > 1) {
+        return list.map((it, i) =>
+          i === index ? { ...it, quantity: it.quantity - 1 } : it,
+        );
+      }
+      return list.filter((_, i) => i !== index);
+    });
   };
 
   const addItem = (product: Product) => {
-    const itemName = `${(product.value / 100).toFixed(2)} - ${product.name}`;
-    const existingIndex = itemlist.findIndex((item) => item.name === itemName);
-
-    if (existingIndex !== -1) {
-      setItemlist(
-        itemlist.map((item, i) =>
-          i === existingIndex ? { ...item, quantity: item.quantity + 1 } : item,
-        ),
-      );
-    } else {
-      setItemlist([
-        ...itemlist,
-        { name: itemName, price: product.value, quantity: 1 },
-      ]);
-    }
-
-    setPrice((p) => p + product.value);
+    setItemlist((list) => {
+      const existing = list.find((item) => item.id === product.bar);
+      if (existing) {
+        return list.map((item) =>
+          item.id === product.bar
+            ? { ...item, quantity: item.quantity + 1 }
+            : item,
+        );
+      }
+      return [
+        ...list,
+        {
+          id: product.bar,
+          name: product.name,
+          price: product.value,
+          quantity: 1,
+        },
+      ];
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const barcode = barRef.current?.value;
-
-    if (!barcode || !barRef.current) return;
+    if (!barcode) return;
 
     const product = products.find((p) => p.bar === barcode);
     if (product) {
       addItem(product);
-      barRef.current.value = "";
+      barRef.current!.value = "";
     }
   };
 
-  const clearCart = () => {
-    setPrice(0);
+  function clear() {
     setItemlist([]);
-    if (barRef.current) {
-      barRef.current.value = "";
-    }
-  };
+    if (barRef.current) barRef.current.value = "";
+  }
+
+  function checkout() {
+    if (itemlist.length === 0) return;
+    saveData((price / 100).toFixed(2)).then((newCount) => {
+      setNumber(newCount);
+    });
+    clear();
+  }
 
   return (
-    <div className="grid place-items-center h-screen w-screen">
-      <div className="bg-white border-4 text-2xl w-160 h-120">
-        <div className="flex justify-between bg-black text-white text-5xl">
+    <div className="grid place-items-center h-screen w-screen text-xl">
+      <div className="bg-white border-4 w-160 h-120">
+        <div className="px-2 flex justify-between bg-black text-white">
           <span>Deal</span>
           {time}
         </div>
-        <div className="h-73 overflow-auto">
+        <div className="h-87 overflow-auto">
           {itemlist.map((item, index) => (
-            <Item key={index} onRemove={() => removeItem(index)}>
-              {item.name} {item.quantity > 1 && `(x${item.quantity})`}
+            <Item key={item.id} onRemove={() => removeItem(index)}>
+              {index + 1} - {item.name} - {(item.price / 100).toFixed(2)}
+              {item.quantity > 1 && ` (x${item.quantity})`}
             </Item>
           ))}
         </div>
-        <div className="pl-2 text-5xl flex justify-between border-t-4 border-b-4">
-          Total:
-          <span>{(price / 100).toFixed(2)}</span>
-          <button className="bg-black text-white pl-4 pr-4" onClick={clearCart}>
-            clear
+        <div className="pl-2 flex justify-between border-t-4 border-b-4">
+          <span>Id: {number}</span>
+          <span>Total: {(price / 100).toFixed(2)}</span>
+          <button className="bg-black text-white pl-4 pr-4" onClick={checkout}>
+            checkout
           </button>
         </div>
         <div>
           <form onSubmit={handleSubmit} className="flex justify-between">
-            <input
-              size={20}
-              placeholder="Barcode here"
-              className="pl-2 pr-2"
-              ref={barRef}
-            />
-            <button type="submit" className="bg-black text-white pl-4 pr-4 p-1">
+            <span className="px-2">
+              &gt;&gt;{" "}
+              <input size={32} placeholder="Barcode here" ref={barRef} />
+            </span>
+            <button type="submit" className="bg-black text-white px-4">
               ok
             </button>
           </form>
           <hr className="border-b-4" />
-          <button
-            className="bg-black text-white pl-1 pr-2"
-            onClick={() => {
-              window.location.href = "/cfg";
-            }}
-          >
-            config
-          </button>
+          <div className="flex justify-between">
+            <button
+              className="bg-black text-white pl-1 pr-2"
+              onClick={() => (window.location.href = "/cfg")}
+            >
+              config
+            </button>
+            {date}
+            <button className="bg-black text-white pr-1 pl-2" onClick={clear}>
+              clear
+            </button>
+          </div>
         </div>
       </div>
     </div>
